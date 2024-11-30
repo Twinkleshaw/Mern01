@@ -23,21 +23,32 @@ const register = async (req, res) => {
       userId: userCreated._id.toString(),
     });
   } catch (error) {
-    res.status(500).json("internal server error");
+    // res.status(500).json("internal server error");
+    next(error);
   }
 };
 
 // login controller
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const userExist = await User.findOne({ email });
     if (!userExist) {
-      res.status(401).send("Invalid credentials");
+      // res.status(401).send("Invalid credentials");
+      const error = {
+        message: "Invalid credentials",
+        extraDetails: "Fill your input properly",
+      };
+      return next(error);
     }
     const isValidPassword = await userExist.comparePassword(password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      // return res.status(401).json({ message: "Invalid credentials" });
+      const error = {
+        message: "Invalid credentials",
+        extraDetails: "Fill your input properly",
+      };
+      return next(error);
     }
     res.status(200).send({
       message: "successful login",
@@ -45,7 +56,7 @@ const login = async (req, res) => {
       userId: userExist._id.toString(),
     });
   } catch (error) {
-    console.error(error);
+    next(error);
   }
 };
 module.exports = { home, register, login };
